@@ -1,56 +1,51 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import os
 
-st.set_page_config(page_title="Ciudadano Data: Cesta", layout="wide")
+st.set_page_config(page_title="Ciudadano Pro: Energía y Cesta", layout="wide")
 
-st.title("🛒 Monitor de la Cesta de la Compra")
-st.caption("Datos oficiales analizados desde tu ODROID-C2")
+# Carga de datos con gestión de errores
+def load_data(name):
+    path = os.path.expanduser(f"~/dashboard_citizen/data/{name}.csv")
+    return pd.read_csv(path) if os.path.exists(path) else pd.DataFrame()
 
-try:
-    df = pd.read_csv('data/cesta_compra.csv')
-    
-    # 1. FILTRADO: Solo nos interesan las "Variaciones anuales" para ver cuánto ha subido respecto al año pasado
-    df = df[df['Producto'].str.contains('Variación anual', case=False, na=False)]
-    
-    # 2. LIMPIEZA: Acortamos los nombres para que queden estéticos
-    # Pasamos de "Total Nacional. Alimentos. Variación anual." a "Alimentos"
-    df['Producto'] = df['Producto'].str.replace('Total Nacional. ', '', regex=False)
-    df['Producto'] = df['Producto'].str.replace('. Variación anual.', '', regex=False)
-    
-    # 3. INTERFAZ
-    opciones = sorted(df['Producto'].unique())
-    
-    # Buscamos algunos por defecto para que no salga vacío
-    defaults = [opt for opt in opciones if "Alimentos" in opt or "Aceites" in opt]
-    
-    seleccion = st.multiselect("🔍 Busca productos (ej: Alimentos, Pan, Cereales, Frutas):", 
-                               opciones, 
-                               default=defaults[:2] if defaults else opciones[:1])
+df_cesta = load_data('cesta_compra.csv')
+df_fuel = load_data('combustibles_hist.csv')
 
-    if seleccion:
-        df_filt = df[df['Producto'].isin(seleccion)].copy()
-        df_filt['Fecha'] = pd.to_datetime(df_filt['Fecha'])
-        df_filt = df_filt.sort_values('Fecha')
-        
-        # Gráfico interactivo
-        fig = px.line(df_filt, x='Fecha', y='Variacion_Anual', color='Producto', 
-                      markers=True, template="plotly_dark",
-                      labels={'Variacion_Anual': 'Subida Anual (%)', 'Fecha': 'Mes'})
-        
-        fig.update_layout(hovermode="x unified")
-        st.plotly_chart(fig, use_container_width=True)
-        
-        # Ranking de impacto
-        st.subheader("🔥 Ranking de subidas actuales")
-        ultimo_mes = df_filt['Fecha'].max()
-        df_rank = df[df['Fecha'] == df['Fecha'].max()].sort_values('Variacion_Anual', ascending=False)
-        
-        # Filtramos para no mostrar el índice general en el ranking y ver solo alimentos
-        st.table(df_rank[['Producto', 'Variacion_Anual']].head(10))
-    else:
-        st.info("Utiliza el buscador de arriba para añadir productos a la comparativa.")
+st.title("🏛️ Monitor de Supervivencia Ciudadana")
+st.caption("Nodo Soberano ODROID-C2 | Datos en Tiempo Real")
 
-except Exception as e:
-    st.error(f"Error procesando datos: {e}")
-    st.info("Prueba a ejecutar el harvester de nuevo si el error persiste.")
+# --- BLOQUE 1: CARBURANTES (PETRÓLEO/GASOLINA) ---
+st.subheader("⛽ Energía y Combustibles")
+if not df_fuel.empty:
+    c1, c2, c3 = st.columns(3)
+    latest = df_fuel.iloc[-1]
+    c1.metric("Gasolina 95", f"{latest['G95']:.3f} €/L")
+    c2.metric("Gasóleo A", f"{latest['Diesel']:.3f} €/L")
+    c3.metric("Fecha Actualización", latest['Fecha'])
+    
+    fig_fuel = px.line(df_fuel, x='Fecha', y=['G95', 'Diesel'], 
+                       title="Evolución Carburantes", template="plotly_dark",
+                       color_discrete_sequence=['#FF4B4B', '#00CC96'])
+    st.plotly_chart(fig_fuel, use_container_width=True)
+
+# --- BLOQUE 2: ALIMENTOS ---
+st.divider()
+st.subheader("🛒 Cesta de la Compra")
+if not df_cesta.empty:
+    # Limpieza para el usuario
+    df_cesta = df_cesta[df_cesta['Producto'].str.contains('Variación anual', case=False)]
+    df_cesta['Producto'] = df_cesta['Producto'].str.replace('Total Nacional. ', '').str.replace('. Variación anual.', '')
+    
+    opciones = st.multiselect("Comparar alimentos:", sorted(df_cesta['Producto'].unique()), default=["Alimentos y bebidas no alcohólicas", "Aceites y grasas"])
+    df_filt = df_cesta[df_cesta['Producto'].isin(opciones)]
+    
+    fig_cesta = px.line(df_filt, x='Fecha', y='Valor', color='Producto', 
+                        markers=True, template="plotly_dark")
+    st.plotly_chart(fig_cesta, use_container_width=True)
+
+# --- ROTACIÓN Y MANTENIMIENTO ---
+st.sidebar.write("⚙️ **Mantenimiento ODROID**")
+st.sidebar.info(f"Registros en Cesta: {len(df_cesta)}")
+st.sidebar.info(f"Registros en Combustibles: {len(df_fuel)}")

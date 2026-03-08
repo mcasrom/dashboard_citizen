@@ -1,29 +1,18 @@
 #!/bin/bash
-
-# Directorio del proyecto
 REPO_DIR="/home/dietpi/dashboard_citizen"
+LOG_FILE="/home/dietpi/dashboard_sync.log"
 cd $REPO_DIR
 
-# 1. Ejecutar la recolección de datos
-echo "Iniciando recolección de datos..."
+# 1. Rotación de Logs (Mantenemos solo las últimas 1000 líneas)
+tail -n 1000 $LOG_FILE > ${LOG_FILE}.tmp && mv ${LOG_FILE}.tmp $LOG_FILE
+
+# 2. Limpieza de archivos temporales de Python
+find . -type d -name "__pycache__" -exec rm -rf {} +
+
+# 3. Recolección de datos
 /usr/bin/python3 $REPO_DIR/scripts/harvester.py
 
-# 2. Verificar si el archivo CSV se generó
-if [ -f "$REPO_DIR/data/cesta_compra.csv" ]; then
-    echo "Datos validados. Preparando subida a GitHub..."
-    
-    # 3. Operaciones de Git
-    git add .
-    git commit -m "Auto-update: $(date +'%Y-%m-%d %H:%M') - 12k records"
-    
-    # Intentar subir (Asume que tienes configurado el token o SSH)
-    git push origin main
-    
-    if [ $? -eq 0 ]; then
-        echo "✅ Datos sincronizados con éxito."
-    else
-        echo "❌ Error al subir a GitHub. Revisa la conexión o el Token."
-    fi
-else
-    echo "❌ Error: No se encontró el archivo de datos."
-fi
+# 4. Sincronización con GitHub
+git add .
+git commit -m "Auto-update: $(date +'%Y-%m-%d %H:%M')"
+git push origin main
