@@ -32,7 +32,7 @@ if __name__ == "__main__":
     get_ine_data("50913", "cesta_compra", ultimos=24)
     
     # 2. Vivienda (IPV)
-    get_ine_data("25171", "vivienda", ultimos=12)
+    get_ine_data("25171", "vivienda", ultimos=24)
     
     # 3. Finanzas (Intentamos Euríbor, si falla, traemos el IPC General como referencia)
     if not get_ine_data("3616", "finanzas", ultimos=12):
