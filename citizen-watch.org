@@ -151,3 +151,17 @@ Opciones para despliegue público:
 2. CSV estáticos en repo (más simple, menos potente)
 3. TinyDB / JSON files versionados en git
 
+
+* 9. Sesiones de trabajo
+
+** Sesión 2026-04-05
+   - Construido app.py v2 desde cero (10 tabs)
+   - SEO real, Ko-fi, copyright, mail, GitHub
+   - Doble modo datos: SQLite + CSV fallback Streamlit Cloud
+   - Desplegado en Streamlit Cloud
+   - Cron 06:08 Odroid C2
+
+** Próxima sesión — prioritario
+   1. Scrapers APIs reales (INE JSON, CIS, datos.gob.es)
+   2. Mapa coroplético CCAA
+
