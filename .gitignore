@@ -5,6 +5,7 @@ __pycache__/
 data/*.db
 data/*.json
 data/*.csv
+!data/static/*.csv
 logs/*.log
 *.bak
 patch_*.py

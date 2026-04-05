@@ -1,0 +1,12 @@
+area,subsector,cantidad,estado
+Salud,Hospitales y Especializada,55000.0,Ejecutado
+Salud,Atención Primaria,12000.0,Infrapresupuestado
+Defensa,Programas de Armamento,7500.0,Aumento 15%
+Defensa,Personal y Operaciones,6000.0,Estable
+Educación,Becas y Ayudas,2500.0,Insuficiente
+Educación,Universidad e I+D,1800.0,Congelado
+Transporte,Cercanías y Red Convencional,3200.0,Crisis de mantenimiento
+Transporte,Alta Velocidad (AVE),5400.0,Sobrepago
+Trabajo,Políticas Activas de Empleo,6500.0,Baja eficiencia
+Seguridad,Cuerpos y Fuerzas de Seguridad,9500.0,Saturado
+Inmigración,Centros de Acogida y Fronteras,3800.0,Desbordado

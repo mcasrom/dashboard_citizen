@@ -127,15 +127,28 @@ PLOT = dict(
 _AX = dict(gridcolor="#21262d", showgrid=True, zeroline=False)
 
 # ── DB helper — ligero, sin cargar todo en memoria ───────────
+STATIC_DIR = BASE_DIR / "data" / "static"
+
 @st.cache_data(ttl=3600, show_spinner=False)
 def query(sql: str) -> pd.DataFrame:
+    # Intentar SQLite primero (local/Odroid)
     try:
-        conn = sqlite3.connect(str(DB_PATH))
-        df = pd.read_sql_query(sql, conn)
-        conn.close()
-        return df
+        if DB_PATH.exists():
+            conn = sqlite3.connect(str(DB_PATH))
+            df = pd.read_sql_query(sql, conn)
+            conn.close()
+            return df
     except Exception:
-        return pd.DataFrame()
+        pass
+    # Fallback: CSV estáticos (Streamlit Cloud)
+    import re
+    m = re.search(r"FROM\s+(\w+)", sql, re.IGNORECASE)
+    if m:
+        tabla = m.group(1)
+        csv_path = STATIC_DIR / f"{tabla}.csv"
+        if csv_path.exists():
+            return pd.read_csv(csv_path)
+    return pd.DataFrame()
 
 def fuentes(*nombres):
     tags = " ".join(f'<span class="fuente-tag">{n}</span>' for n in nombres)

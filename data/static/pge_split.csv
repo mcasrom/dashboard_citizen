@@ -1,0 +1,12 @@
+categoria,subsector,cantidad,tendencia
+Salud,Atención Primaria,12400.0,Infrapresupuestado
+Salud,Gasto Hospitalario,48000.0,Alza por Cronicidad
+Salud,Salud Mental,450.0,Crítico/Insuficiente
+Defensa,Programas Especiales Armamento,8200.0,Incremento OTAN
+Defensa,Misiones Internacionales,1200.0,Estable
+Transporte,Cercanías (Mantenimiento),2100.0,Déficit Histórico
+Transporte,Alta Velocidad (Inversión),5800.0,Prioridad Política
+Trabajo,Subsidios Desempleo,18000.0,Estructural
+Trabajo,Formación y Empleo Joven,1500.0,Baja Ejecución
+Inmigración,Salvamento Marítimo,240.0,Saturado
+Inmigración,Centros de Estancia Temporal,1100.0,Desbordado

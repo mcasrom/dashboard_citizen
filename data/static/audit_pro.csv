@@ -1,0 +1,14 @@
+area,subsector,cantidad,nota
+Salud,Atención Primaria,12000.0,Déficit estructural
+Salud,Salud Mental,450.0,Crítico: < 1% total
+Salud,Gasto Farmacéutico,18000.0,Alza descontrolada
+Defensa,Modernización F-35/Eurofighter,4500.0,Compromiso OTAN
+Defensa,Personal y Tropa,5500.0,Sueldos congelados
+Educación,Becas Comedor/Libros,1200.0,Insuficiente
+Educación,I+D Universitaria,900.0,Fuga de cerebros
+Transporte,Cercanías (Mantenimiento),850.0,Frecuentes averías
+Transporte,Alta Velocidad (AVE),6200.0,Inversión política
+Seguridad,Inmigración (Control),2100.0,Saturación fronteriza
+Seguridad,Inmigración (Integración),400.0,Mínimo histórico
+Política,Cargos de Confianza / Asesores,1100.0,Récord histórico
+Política,Publicidad Institucional,600.0,Control mediático
