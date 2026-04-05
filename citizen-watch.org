@@ -1,0 +1,153 @@
+#+TITLE: CitizenWatch Pro — Documentación Técnica
+#+AUTHOR: Miguel Castillo
+#+EMAIL: mybloggingnotes@gmail.com
+#+DATE: 2026-04-05
+#+STARTUP: overview
+#+OPTIONS: toc:2 num:t
+
+* 1. Descripción
+
+Plataforma independiente de inteligencia ciudadana OSINT para España.
+Agrega datos públicos oficiales sobre las principales preocupaciones
+de la ciudadanía española.
+
+URL local: http://192.168.1.147:8502
+Repo: https://github.com/mcasrom/dashboard_citizen
+Ko-fi: https://ko-fi.com/mcasrom
+Contacto: mybloggingnotes@gmail.com
+Copyright: © 2026 M. Castillo
+
+* 2. Stack técnico
+
+- Python 3.13 + Streamlit 1.56
+- SQLite (citizen_data.db) — sin dependencias cloud
+- Plotly 6.6 — gráficos ligeros para Odroid C2
+- BeautifulSoup4 + Requests — scrapers
+- Odroid C2 / DietPi — nodo local 192.168.1.147
+- Git + GitHub — control de versiones
+
+* 3. Estructura
+
+#+BEGIN_SRC
+~/dashboard_citizen/
+├── app.py                      ← dashboard principal (10 tabs)
+├── requirements.txt
+├── .gitignore
+├── data/
+│   └── citizen_data.db         ← SQLite (en .gitignore)
+├── scripts/
+│   ├── push_data.sh            ← script cron git push
+│   ├── harvester.py            ← harvester legacy
+│   ├── db_manager.py           ← gestión SQLite
+│   ├── mega_populator.py       ← población inicial DB
+│   ├── scraper_cis_gasto.py    ← CIS + gasto político
+│   ├── scraper_crime_ipc.py    ← criminalidad + IPC
+│   ├── scraper_mercosur.py     ← riesgos Mercosur
+│   ├── scraper_osint_social.py ← tensión social
+│   ├── scraper_pge_total.py    ← PGE real
+│   └── scraper_political_stress.py
+└── logs/
+
+* 4. Tabs del dashboard
+
+| # | Tab              | Fuentes principales         | Estado |
+|---+------------------+-----------------------------+--------|
+| 1 | Barómetro Social | CIS, Eurobarómetro          | ✅     |
+| 2 | Empleo           | EPA/INE, SEPE               | ✅     |
+| 3 | Vivienda         | BdE, Idealista, INE         | ✅     |
+| 4 | Seguridad        | Ministerio Interior         | ✅     |
+| 5 | Gasto Político   | Transparencia, BOE          | ✅     |
+| 6 | Inmigración      | INE Padrón, Eurostat        | ✅     |
+| 7 | Sanidad          | SNS, Ministerio Sanidad     | ✅     |
+| 8 | Corrupción & PGE | Tribunal Cuentas, CGPJ      | ✅     |
+| 9 | Geopolítica      | Exteriores, INE IPC         | ✅     |
+| 10| Metodología      | —                           | ✅     |
+
+* 5. Automatización
+
+#+BEGIN_SRC bash
+# Cron en Odroid C2 — 06:08 cada día
+08 06 * * * /bin/bash /home/dietpi/dashboard_citizen/scripts/push_data.sh
+
+# Arranque manual
+cd ~/dashboard_citizen
+source venv/bin/activate
+streamlit run app.py --server.port 8502 --server.address 0.0.0.0
+
+# Log
+tail -f ~/dashboard_citizen/logs/cron.log
+#+END_SRC
+
+* 6. Base de datos SQLite
+
+Tablas activas en citizen_data.db:
+
+| Tabla                  | Contenido                        |
+|------------------------+----------------------------------|
+| cis_barometro          | Serie histórica CIS 2024-2025    |
+| cis_tension            | Problemas ciudadanos + tendencia |
+| cis_full               | Barómetro completo 2025          |
+| political_perception   | Percepción política CIS          |
+| criminalidad_detallada | Tipología delictiva              |
+| inmigracion_stats      | Origen y volumen extranjeros     |
+| trabajo_split          | Estructura mercado laboral       |
+| gasto_detallado        | PGE por área y subsector         |
+| pge_split              | Presupuesto vs ejecutado         |
+| pge_audit              | Auditoría partidas PGE           |
+| mercosur_impact        | Riesgos alimentarios Mercosur    |
+| social_friction        | IPC vs inseguridad               |
+| tension_social         | KPIs tensión social              |
+| gasto_politico_vs_social| Comparativa gasto               |
+| audit_pro              | Matriz gasto detallado           |
+
+* 7. Potenciales mejoras futuras
+
+** TODO Scrapers con datos reales via API
+   - INE API JSON (endpoints disponibles en ine.es/dyngs)
+   - CIS scraping PDF mensual automático
+   - datos.gob.es catálogo datasets oficiales
+   - Eurostat API comparativa europea automática
+
+** TODO Alertas Telegram
+   - Usar bot SIEG existente (@sieg_politica_bot)
+   - Alerta cuando KPI supera umbral crítico
+   - Resumen semanal automático
+
+** TODO Mapa coroplético por CCAA
+   - Paro por comunidad autónoma (INE)
+   - Precios vivienda por provincia (Idealista API)
+   - Criminalidad por región (Interior)
+
+** TODO Serie temporal real 2015-2026
+   - Todos los KPIs con evolución histórica real
+   - Correlaciones entre variables
+
+** TODO Módulo educación completo
+   - Abandono escolar por CCAA
+   - Inversión por alumno vs PISA
+   - Ratio alumnos/profesor
+
+** TODO Integración narrative-radar
+   - Cruzar narrativas mediáticas con KPIs ciudadanos
+   - Correlación agenda mediática vs preocupaciones CIS
+
+** TODO Despliegue público
+   - Render con disco persistente (como sieg-cyber-dash)
+   - O Streamlit Cloud con datos en CSV estáticos en repo
+
+** TODO PDF report mensual
+   - Resumen ejecutivo automático
+   - Pipeline email ya disponible en narrative-radar
+
+** TODO Modo comparativa internacional
+   - España vs UE en todos los KPIs
+   - Ranking europeo por módulo
+
+* 8. Notas migración Streamlit Cloud
+
+La DB SQLite no persiste en Streamlit Cloud.
+Opciones para despliegue público:
+1. Render + disco persistente (recomendado, ya tenemos experiencia)
+2. CSV estáticos en repo (más simple, menos potente)
+3. TinyDB / JSON files versionados en git
+
