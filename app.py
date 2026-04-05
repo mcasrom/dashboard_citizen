@@ -173,6 +173,24 @@ with st.sidebar:
     if st.button("🔄 Actualizar datos", type="secondary"):
         st.cache_data.clear()
         st.rerun()
+    st.divider()
+    st.markdown("""
+    <div style='text-align:center;padding:8px 0'>
+        <a href='https://ko-fi.com/mcasrom' target='_blank'
+           style='background:#FF5E5B;color:white;padding:8px 16px;
+           border-radius:6px;text-decoration:none;font-size:0.8rem;
+           font-weight:600;display:inline-block'>
+            ☕ Apóyame en Ko-fi
+        </a>
+    </div>
+    <div style='font-size:0.68rem;color:#8b949e;text-align:center;margin-top:8px'>
+        © 2026 M. Castillo<br>
+        <a href='mailto:mybloggingnotes@gmail.com'
+           style='color:#58a6ff'>mybloggingnotes@gmail.com</a><br>
+        <a href='https://github.com/mcasrom/dashboard_citizen'
+           style='color:#58a6ff'>GitHub</a>
+    </div>
+    """, unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════
 # HEADER
